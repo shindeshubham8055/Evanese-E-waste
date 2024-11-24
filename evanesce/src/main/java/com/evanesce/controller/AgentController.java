@@ -1,93 +1,74 @@
-package com.evanesce.controller;
-
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-import com.evanesce.entity.Agent;
-import com.evanesce.entity.Request;
-import com.evanesce.service.AgentService;
-import com.evanesce.service.RequestService;
-
 @CrossOrigin
 @RestController
+@RequestMapping("/agents") // Base path to improve URL readability
 public class AgentController {
 
-	@Autowired
-	private AgentService agentService;
-	@Autowired
-	private RequestService reqService;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private RequestService reqService;
 
-	@PostMapping("/Agentlogin")
-	public Agent loginAgent(@RequestBody Agent agent) {
-		System.out.println("\n@PostMapping(\"/Agentlogin\")");
-		System.out.println("loginAgent(@RequestBody Agent agent)");
-		return agentService.loginAgent(agent.getEmail(), agent.getPassword());
-	}
+    private static final Logger logger = LoggerFactory.getLogger(AgentController.class);
 
-	//Admin Module - Assign Agent
-	@GetMapping("/setStatus/{id}")
-	public String setStatusOfAgent(@PathVariable int id) {
-		System.out.println("\n@GetMapping(\"/setStatus/{id}\")s");
-		System.out.println(" in set Status Method" + "request_id");
-		System.out.println("AGENT ID" + id);
-		return agentService.changeStatus(id);
-	}
+    @PostMapping("/login")
+    public ResponseEntity<?> loginAgent(@RequestBody @Valid Agent agent) {
+        Agent result = agentService.loginAgent(agent.getEmail(), agent.getPassword());
+        if (result != null) {
+            return ResponseEntity.ok(result);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+    }
 
-	@GetMapping("/setStatus/{id}/{request_id}")
-	public String setStatusofAgentandSetRequest(@PathVariable int id, @PathVariable int request_id) {
-		System.out.println("\n@GetMapping(\"/setStatus/{id}/{request_id}\")");
-		System.out.println("setStatusofAgentandSetRequest(@PathVariable int id, @PathVariable int request_id)");
-		System.out.println("AGENT ID" + id + "REQUEST ID" + request_id);
-		return reqService.assignAgentIdToRequest(id, request_id);
-	}
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<String> setStatusOfAgent(@PathVariable int id) {
+        logger.info("Updating status for Agent ID: {}", id);
+        String status = agentService.changeStatus(id);
+        return ResponseEntity.ok(status);
+    }
 
-	//Agent Module - Card Agent Home viewAllRequests
-	@GetMapping("/viewrequestbyagent/{id}")
-	public List<Request> agentRequests(@PathVariable Agent id) {
-		System.out.println("\n@GetMapping(\"/viewrequestbyagent/{id}\")");
-		System.out.println("List<Request> agentRequests(@PathVariable Agent id)");
-		System.out.println("AGENT ID" + id);
-		return reqService.findAgentRequests(id);
-	}
+    @PatchMapping("/{id}/assignRequest/{requestId}")
+    public ResponseEntity<String> assignAgentToRequest(@PathVariable int id, @PathVariable int requestId) {
+        logger.info("Assigning Request ID {} to Agent ID {}", requestId, id);
+        String result = reqService.assignAgentIdToRequest(id, requestId);
+        return ResponseEntity.ok(result);
+    }
 
-	@PostMapping("/findagentbyemail")
-	public List<Agent> findByEmail(@RequestBody Agent agent) {
-		System.out.println("\n@PostMapping(\"/findagentbyemail\")");
-		System.out.println("List<Agent> findByEmail(@RequestBody Agent agent)");
-		return agentService.findByEmail(agent.getEmail());
-	}
+    @GetMapping("/{id}/requests")
+    public ResponseEntity<List<Request>> getAgentRequests(@PathVariable int id) {
+        logger.info("Fetching requests for Agent ID: {}", id);
+        List<Request> requests = reqService.findAgentRequests(id);
+        return ResponseEntity.ok(requests);
+    }
 
-	@GetMapping("/city_wise_agents/{city}")
-	public List<Agent> getAgentsCityWise(@PathVariable String city) {
-		System.out.println("\n@GetMapping(\"/city_wise_agents/{city}\")");
-		System.out.println("List<Agent> getAgentsCityWise(@PathVariable String city) ");
-		System.out.println("In City Wise Agents Apis");
-		return agentService.findByCity(city);
-	}
+    @PostMapping("/findByEmail")
+    public ResponseEntity<List<Agent>> findByEmail(@RequestBody @Valid Agent agent) {
+        List<Agent> agents = agentService.findByEmail(agent.getEmail());
+        return ResponseEntity.ok(agents);
+    }
 
-	// Admin - HireAgent
-	@PostMapping("/Hireagent")
-	public Agent hireAgent(@RequestBody Agent agent) {
-		System.out.println("\n@PostMapping(\"/Hireagent\")");
-		System.out.println("Agent hireAgent(@RequestBody Agent agent)");
-		System.out.println(agent);
-		return agentService.hireAgent(agent);
-	}
+    @GetMapping("/city/{city}")
+    public ResponseEntity<List<Agent>> getAgentsByCity(@PathVariable String city) {
+        logger.info("Fetching agents in city: {}", city);
+        List<Agent> agents = agentService.findByCity(city);
+        return ResponseEntity.ok(agents);
+    }
 
-	// Admin - Get All Agents
-	@GetMapping("/getallagents")
-	public List<Agent> getAllAgents(Agent agent) {
-		System.out.println("\n@GetMapping(\"/getallagents\")");
-		System.out.println("List<Agent> getAllAgents(Agent agent)");
-		return agentService.getAllAgents();
-	}
+    @PostMapping("/hire")
+    public ResponseEntity<Agent> hireAgent(@RequestBody @Valid Agent agent) {
+        Agent hiredAgent = agentService.hireAgent(agent);
+        return ResponseEntity.status(HttpStatus.CREATED).body(hiredAgent);
+    }
 
-	// Admin - Delete Agent
-	@DeleteMapping("deleteagent/{id}")
-	public String deleteUser(@PathVariable int id) {
-		System.out.println("\n@DeleteMapping(\"deleteagent/{id}\")");
-		System.out.println("String deleteUser(@PathVariable int id)");
-		agentService.deleteAgent(id);
-		return "Deleted";
-	}
+    @GetMapping("/all")
+    public ResponseEntity<List<Agent>> getAllAgents() {
+        List<Agent> agents = agentService.getAllAgents();
+        return ResponseEntity.ok(agents);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteAgent(@PathVariable int id) {
+        agentService.deleteAgent(id);
+        return ResponseEntity.ok("Agent deleted successfully");
+    }
 }
