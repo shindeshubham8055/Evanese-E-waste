@@ -8,86 +8,125 @@ import com.evanesce.entity.Request;
 import com.evanesce.service.AgentService;
 import com.evanesce.service.RequestService;
 
+/**
+ * REST Controller for managing Agent-related operations.
+ */
 @CrossOrigin
 @RestController
 public class AgentController {
 
 	@Autowired
 	private AgentService agentService;
+
 	@Autowired
 	private RequestService reqService;
 
+	/**
+	 * Endpoint for agent login.
+	 *
+	 * @param agent The agent details (email and password).
+	 * @return The authenticated Agent object.
+	 */
 	@PostMapping("/Agentlogin")
 	public Agent loginAgent(@RequestBody Agent agent) {
-		System.out.println("\n@PostMapping(\"/Agentlogin\")");
-		System.out.println("loginAgent(@RequestBody Agent agent)");
+		System.out.println("\nAgent login endpoint accessed.");
 		return agentService.loginAgent(agent.getEmail(), agent.getPassword());
 	}
 
-	//Admin Module - Assign Agent
+	/**
+	 * Endpoint for setting the status of an agent.
+	 *
+	 * @param id The agent ID.
+	 * @return Status update confirmation message.
+	 */
 	@GetMapping("/setStatus/{id}")
 	public String setStatusOfAgent(@PathVariable int id) {
-		System.out.println("\n@GetMapping(\"/setStatus/{id}\")s");
-		System.out.println(" in set Status Method" + "request_id");
-		System.out.println("AGENT ID" + id);
+		System.out.println("\nSet status endpoint accessed for Agent ID: " + id);
 		return agentService.changeStatus(id);
 	}
 
+	/**
+	 * Endpoint for setting the status of an agent and assigning a request.
+	 *
+	 * @param id The agent ID.
+	 * @param request_id The request ID to assign.
+	 * @return Confirmation message after assigning the request.
+	 */
 	@GetMapping("/setStatus/{id}/{request_id}")
-	public String setStatusofAgentandSetRequest(@PathVariable int id, @PathVariable int request_id) {
-		System.out.println("\n@GetMapping(\"/setStatus/{id}/{request_id}\")");
-		System.out.println("setStatusofAgentandSetRequest(@PathVariable int id, @PathVariable int request_id)");
-		System.out.println("AGENT ID" + id + "REQUEST ID" + request_id);
+	public String setStatusOfAgentAndSetRequest(@PathVariable int id, @PathVariable int request_id) {
+		System.out.println("\nAssigning request to agent - Agent ID: " + id + ", Request ID: " + request_id);
 		return reqService.assignAgentIdToRequest(id, request_id);
 	}
 
-	//Agent Module - Card Agent Home viewAllRequests
+	/**
+	 * Endpoint for viewing all requests assigned to a specific agent.
+	 *
+	 * @param id The agent ID.
+	 * @return List of requests assigned to the agent.
+	 */
 	@GetMapping("/viewrequestbyagent/{id}")
 	public List<Request> agentRequests(@PathVariable Agent id) {
-		System.out.println("\n@GetMapping(\"/viewrequestbyagent/{id}\")");
-		System.out.println("List<Request> agentRequests(@PathVariable Agent id)");
-		System.out.println("AGENT ID" + id);
+		System.out.println("\nFetching requests for Agent ID: " + id);
 		return reqService.findAgentRequests(id);
 	}
 
+	/**
+	 * Endpoint for finding agents by email.
+	 *
+	 * @param agent The agent details containing the email.
+	 * @return List of agents matching the provided email.
+	 */
 	@PostMapping("/findagentbyemail")
 	public List<Agent> findByEmail(@RequestBody Agent agent) {
-		System.out.println("\n@PostMapping(\"/findagentbyemail\")");
-		System.out.println("List<Agent> findByEmail(@RequestBody Agent agent)");
+		System.out.println("\nFinding agent by email: " + agent.getEmail());
 		return agentService.findByEmail(agent.getEmail());
 	}
 
+	/**
+	 * Endpoint for retrieving agents based on their city.
+	 *
+	 * @param city The city name.
+	 * @return List of agents located in the specified city.
+	 */
 	@GetMapping("/city_wise_agents/{city}")
 	public List<Agent> getAgentsCityWise(@PathVariable String city) {
-		System.out.println("\n@GetMapping(\"/city_wise_agents/{city}\")");
-		System.out.println("List<Agent> getAgentsCityWise(@PathVariable String city) ");
-		System.out.println("In City Wise Agents Apis");
+		System.out.println("\nFetching agents in city: " + city);
 		return agentService.findByCity(city);
 	}
 
-	// Admin - HireAgent
+	/**
+	 * Endpoint for hiring a new agent.
+	 *
+	 * @param agent The agent details to be hired.
+	 * @return The newly created Agent object.
+	 */
 	@PostMapping("/Hireagent")
 	public Agent hireAgent(@RequestBody Agent agent) {
-		System.out.println("\n@PostMapping(\"/Hireagent\")");
-		System.out.println("Agent hireAgent(@RequestBody Agent agent)");
-		System.out.println(agent);
+		System.out.println("\nHiring new agent: " + agent);
 		return agentService.hireAgent(agent);
 	}
 
-	// Admin - Get All Agents
+	/**
+	 * Endpoint for retrieving all agents.
+	 *
+	 * @return List of all agents.
+	 */
 	@GetMapping("/getallagents")
-	public List<Agent> getAllAgents(Agent agent) {
-		System.out.println("\n@GetMapping(\"/getallagents\")");
-		System.out.println("List<Agent> getAllAgents(Agent agent)");
+	public List<Agent> getAllAgents() {
+		System.out.println("\nFetching all agents.");
 		return agentService.getAllAgents();
 	}
 
-	// Admin - Delete Agent
-	@DeleteMapping("deleteagent/{id}")
-	public String deleteUser(@PathVariable int id) {
-		System.out.println("\n@DeleteMapping(\"deleteagent/{id}\")");
-		System.out.println("String deleteUser(@PathVariable int id)");
+	/**
+	 * Endpoint for deleting an agent by ID.
+	 *
+	 * @param id The agent ID to be deleted.
+	 * @return Confirmation message upon successful deletion.
+	 */
+	@DeleteMapping("/deleteagent/{id}")
+	public String deleteAgent(@PathVariable int id) {
+		System.out.println("\nDeleting agent with ID: " + id);
 		agentService.deleteAgent(id);
-		return "Deleted";
+		return "Agent deleted successfully.";
 	}
 }
