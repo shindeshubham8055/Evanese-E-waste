@@ -7,6 +7,8 @@ import com.evanesce.entity.Agent;
 import com.evanesce.entity.Request;
 import com.evanesce.service.AgentService;
 import com.evanesce.service.RequestService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * REST Controller for managing Agent-related operations.
@@ -14,6 +16,8 @@ import com.evanesce.service.RequestService;
 @CrossOrigin
 @RestController
 public class AgentController {
+
+	private static final Logger logger = LoggerFactory.getLogger(AgentController.class);
 
 	@Autowired
 	private AgentService agentService;
@@ -29,7 +33,7 @@ public class AgentController {
 	 */
 	@PostMapping("/Agentlogin")
 	public Agent loginAgent(@RequestBody Agent agent) {
-		System.out.println("\nAgent login endpoint accessed.");
+		logger.info("Agent login endpoint accessed. Agent email: {}", agent.getEmail());
 		return agentService.loginAgent(agent.getEmail(), agent.getPassword());
 	}
 
@@ -41,7 +45,7 @@ public class AgentController {
 	 */
 	@GetMapping("/setStatus/{id}")
 	public String setStatusOfAgent(@PathVariable int id) {
-		System.out.println("\nSet status endpoint accessed for Agent ID: " + id);
+		logger.info("Set status endpoint accessed for Agent ID: {}", id);
 		return agentService.changeStatus(id);
 	}
 
@@ -54,7 +58,7 @@ public class AgentController {
 	 */
 	@GetMapping("/setStatus/{id}/{request_id}")
 	public String setStatusOfAgentAndSetRequest(@PathVariable int id, @PathVariable int request_id) {
-		System.out.println("\nAssigning request to agent - Agent ID: " + id + ", Request ID: " + request_id);
+		logger.info("Assigning request to agent - Agent ID: {}, Request ID: {}", id, request_id);
 		return reqService.assignAgentIdToRequest(id, request_id);
 	}
 
@@ -66,7 +70,7 @@ public class AgentController {
 	 */
 	@GetMapping("/viewrequestbyagent/{id}")
 	public List<Request> agentRequests(@PathVariable Agent id) {
-		System.out.println("\nFetching requests for Agent ID: " + id);
+		logger.info("Fetching requests for Agent ID: {}", id);
 		return reqService.findAgentRequests(id);
 	}
 
@@ -78,7 +82,7 @@ public class AgentController {
 	 */
 	@PostMapping("/findagentbyemail")
 	public List<Agent> findByEmail(@RequestBody Agent agent) {
-		System.out.println("\nFinding agent by email: " + agent.getEmail());
+		logger.info("Finding agent by email: {}", agent.getEmail());
 		return agentService.findByEmail(agent.getEmail());
 	}
 
@@ -90,7 +94,7 @@ public class AgentController {
 	 */
 	@GetMapping("/city_wise_agents/{city}")
 	public List<Agent> getAgentsCityWise(@PathVariable String city) {
-		System.out.println("\nFetching agents in city: " + city);
+		logger.info("Fetching agents in city: {}", city);
 		return agentService.findByCity(city);
 	}
 
@@ -102,7 +106,7 @@ public class AgentController {
 	 */
 	@PostMapping("/Hireagent")
 	public Agent hireAgent(@RequestBody Agent agent) {
-		System.out.println("\nHiring new agent: " + agent);
+		logger.info("Hiring new agent: {}", agent);
 		return agentService.hireAgent(agent);
 	}
 
@@ -113,7 +117,7 @@ public class AgentController {
 	 */
 	@GetMapping("/getallagents")
 	public List<Agent> getAllAgents() {
-		System.out.println("\nFetching all agents.");
+		logger.info("Fetching all agents.");
 		return agentService.getAllAgents();
 	}
 
@@ -125,7 +129,7 @@ public class AgentController {
 	 */
 	@DeleteMapping("/deleteagent/{id}")
 	public String deleteAgent(@PathVariable int id) {
-		System.out.println("\nDeleting agent with ID: " + id);
+		logger.info("Deleting agent with ID: {}", id);
 		agentService.deleteAgent(id);
 		return "Agent deleted successfully.";
 	}
