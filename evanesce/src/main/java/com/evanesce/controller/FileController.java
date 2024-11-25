@@ -19,6 +19,8 @@ import com.evanesce.message.ResponseFile;
 import com.evanesce.message.ResponseMessage;
 import com.evanesce.entity.FileDB;
 import com.evanesce.service.FileStorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @CrossOrigin // ("http://localhost:3000")
@@ -27,52 +29,50 @@ public class FileController {
 	@Autowired
 	private FileStorageService storageService;
 
+	private static final Logger logger = LoggerFactory.getLogger(FileController.class);
+
 	@PostMapping("/upload")
-	public ResponseEntity<ResponseMessage> uploadFile(@RequestParam String requestid,@RequestParam("file") MultipartFile file) {
+	public ResponseEntity<ResponseMessage> uploadFile(@RequestParam String requestid, @RequestParam("file") MultipartFile file) {
 		String message = "";
 		try {
-			System.out.println("\n in try block mapping request");
-			System.out.println("@PostMapping(\"/upload\")");
-			System.out.println("ResponseEntity<ResponseMessage> uploadFile(@RequestParam String requestid,@RequestParam(\"file\") MultipartFile file)");
-			int reqimgid=Integer.parseInt(requestid);
-			System.out.println(requestid+"Reques id"+"--->convert to integer--->"+reqimgid);
-			storageService.store(file,reqimgid);
+			logger.info("Entering uploadFile method.");
+			int reqimgid = Integer.parseInt(requestid);
+			logger.info("Request ID: {}", reqimgid);
+
+			storageService.store(file, reqimgid);
 			message = "Uploaded the file successfully: " + file.getOriginalFilename();
+			logger.info(message);
 			return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
 		} catch (Exception e) {
 			message = "Could not upload the file: " + file.getOriginalFilename() + "!";
-			System.out.println(message);
+			logger.error(message, e);
 			return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage(message));
 		}
 	}
 
 	@GetMapping("/files")
 	public ResponseEntity<List<ResponseFile>> getListFiles() {
-		System.out.println("\n@GetMapping(\"/files\")");
-		System.out.println("ResponseEntity<List<ResponseFile>> getListFiles()");
-		System.out.println("in list files");
+		logger.info("Fetching list of files.");
 		List<ResponseFile> files = storageService.getAllFiles().map(dbFile -> {
-			String fileDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath() // Prepares a URL from the
-																							// host, port, scheme, and
-					// context path of the given HttpServletRequest.eg : http://localhost:8080/
-					.path("/files/")// apends the resource name eg : http://localhost:8080/files
-					.path(dbFile.getId().toString()) // appends file id(resource id) http://localhost:8080/files/1
+			String fileDownloadUrl = ServletUriComponentsBuilder.fromCurrentContextPath()
+					.path("/files/")
+					.path(dbFile.getId().toString())
 					.toUriString();
-			System.out.println("url " + fileDownloadUrl);
+			logger.info("File download URL: {}", fileDownloadUrl);
 
 			return new ResponseFile(dbFile.getName(), fileDownloadUrl, dbFile.getType(), dbFile.getData().length);
 		}).collect(Collectors.toList());
 
+		logger.info("Returning {} files.", files.size());
 		return ResponseEntity.status(HttpStatus.OK).body(files);
 	}
 
 	@GetMapping("/files/{id}")
 	public ResponseEntity<byte[]> getFile(@PathVariable Integer id) {
-		System.out.println("\n@GetMapping(\"/files/{id}\")");
-		System.out.println("ResponseEntity<byte[]> getFile(@PathVariable Integer id)");
-		System.out.println("in get file");
+		logger.info("Fetching file with ID: {}", id);
 		FileDB fileDB = storageService.getFile(id);
-         
+
+		logger.info("Returning file: {}", fileDB.getName());
 		return ResponseEntity.ok()
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileDB.getName() + "\"")
 				.body(fileDB.getData());
