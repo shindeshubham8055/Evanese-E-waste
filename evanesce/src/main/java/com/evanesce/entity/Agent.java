@@ -69,8 +69,8 @@ public class Agent {
 	public void setPhone(long phone) {
 		this.phone = phone;
 	}
-	public boolean isIs_free() {
-		return is_free;
+	public boolean isIsFree() {
+		return isIsFree();
 	}
 	public void setIsFree(boolean isFree) {
 		this.isFree = isFree;

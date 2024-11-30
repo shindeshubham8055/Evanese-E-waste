@@ -88,8 +88,8 @@ public class RequestServiceImple implements RequestService {
 		Request donor_request = requestDao.getReferenceById(requestid);
 		donor_request.getReqid();
 		Agent agent = agentDao.getReferenceById(agentid);
-		agent.isIs_free();
-		agent.setIs_free(!(agent.isIs_free()));
+		agent.isIsFree();
+		agent.setIsFree(!(agent.isIsFree()));
 		donor_request.setAgentid(agent);
 
 		return "request got a Agent";
