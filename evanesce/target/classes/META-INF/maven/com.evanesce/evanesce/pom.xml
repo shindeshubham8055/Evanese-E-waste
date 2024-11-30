@@ -35,7 +35,7 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-		<dependencies>
+		
 			<!-- SLF4J API for logging -->
 			<dependency>
 				<groupId>org.slf4j</groupId>
@@ -49,7 +49,7 @@
 				<artifactId>logback-classic</artifactId>
 				<version>1.4.8</version> <!-- Use the latest stable version -->
 			</dependency>
-		</dependencies>
+		
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>

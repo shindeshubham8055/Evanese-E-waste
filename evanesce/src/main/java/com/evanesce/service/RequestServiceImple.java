@@ -39,7 +39,7 @@ public class RequestServiceImple implements RequestService {
 	public Request updateRequests(int id, Request request) {
 		System.out.print(request);
 		request.setAgentid(agentDao.findById(id));
-		agentDao.findById(id).setIs_free(true);
+		agentDao.findById(id).setIsFree(true);
 		request.setStatus(true);
 		return requestDao.save(request);
 	}

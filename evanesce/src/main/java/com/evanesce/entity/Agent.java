@@ -29,7 +29,7 @@ public class Agent {
 	private String password;
 	private String city;
 	private long phone;
-	private boolean is_free=true;
+	private boolean isFree=true;
 	@JsonIgnore
 	@OneToMany(mappedBy = "agentid", cascade = CascadeType.ALL, orphanRemoval = false)
 	private List<Request> request;
@@ -72,8 +72,8 @@ public class Agent {
 	public boolean isIs_free() {
 		return is_free;
 	}
-	public void setIs_free(boolean is_free) {
-		this.is_free = is_free;
+	public void setIsFree(boolean isFree) {
+		this.isFree = isFree;
 	}
 	public List<Request> getRequest() {
 		return request;

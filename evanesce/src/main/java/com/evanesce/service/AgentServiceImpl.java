@@ -58,9 +58,9 @@ public class AgentServiceImpl implements AgentService {
 
 		// Using a functional interface (Consumer) to encapsulate the logic for updating agent status
 		Consumer<Agent> updateAgentStatus = a -> {
-			if (a.isIs_free()) {
+			if (a.isFree()) {  // Updated from a.is_is_free() to a.isFree()
 				// If the agent is free, change their status to 'not free' and save the updated status
-				a.setIs_free(false);
+				a.setFree(false); // Updated from setIs_free to setFree
 				agentDao.save(a); // Save the updated agent object
 			}
 		};
