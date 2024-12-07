@@ -1,11 +1,11 @@
 package com.evanesce.service;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.evanesce.entity.Agent;
 import com.evanesce.repository.AgentDao;
-import java.util.function.Consumer; // Importing functional interface for modular code
 
 @Service
 public class AgentServiceImpl implements AgentService {
@@ -15,60 +15,46 @@ public class AgentServiceImpl implements AgentService {
 
 	@Override
 	public Agent loginAgent(String email, String password) {
-		// Directly calling the repository method to authenticate the agent by email and password
 		return agentDao.findByEmailAndPassword(email, password);
 	}
 
 	@Override
-	public Agent hireAgent(Agent a) {
-		// Save the agent object to the database using the repository
-		return agentDao.save(a);
+	public Agent hireAgent(Agent agent) {
+		return agentDao.save(agent);
 	}
 
 	@Override
 	public List<Agent> getAllAgents() {
-		// Fetching all agents from the database
 		return agentDao.findAll();
 	}
 
 	@Override
 	public void deleteAgent(int id) {
-		// Fetching the agent by id and then deleting from the database
-		Agent agent = agentDao.getReferenceById(id);
-		agentDao.delete(agent);
+		agentDao.deleteById(id); // Directly delete using ID
 	}
 
 	@Override
 	public List<Agent> findByEmail(String email) {
-		// Fetching agents based on email address
 		return agentDao.findByEmail(email);
 	}
 
 	@Override
 	public List<Agent> findByCity(String city) {
-		// Fetching agents based on their city
 		return agentDao.findByCity(city);
 	}
 
-	// Admin Module - Assign Agent Status
 	@Override
 	public String changeStatus(int id) {
-		// Fetching the agent by id to check and update their status
-		Agent agent = agentDao.findById(id);
+		Optional<Agent> optionalAgent = agentDao.findById(id);
 
-		// Using a functional interface (Consumer) to encapsulate the logic for updating agent status
-		Consumer<Agent> updateAgentStatus = a -> {
-			if (a.isIsFree()) {  // Updated from a.is_is_free() to a.isFree()
-				// If the agent is free, change their status to 'not free' and save the updated status
-				a.setIsFree(false); // Updated from setIs_free to setFree
-				agentDao.save(a); // Save the updated agent object
+		if (optionalAgent.isPresent()) {
+			Agent agent = optionalAgent.get();
+			if (agent.isFree()) {
+				agent.setIsFree(false); // Update status
+				agentDao.save(agent); // Save updated entity
+				return "Changed work status successfully.";
 			}
-		};
-
-		// Applying the status change logic to the agent
-		updateAgentStatus.accept(agent);
-
-		// Return a success message indicating the status has been changed
-		return "Changed work Status";
+		}
+		return "Agent not found or status unchanged.";
 	}
 }
